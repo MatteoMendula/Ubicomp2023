@@ -4,6 +4,7 @@ from io import BytesIO
 import json
 import base64
 import threading
+import cv2
 
 class User():
     def __init__(self, type_conenction, set_tasks, req_per_sec, url, start_time,duration, inference_metric_exporter) :
@@ -14,24 +15,28 @@ class User():
         self.start_time=start_time
         self.duration=duration
         self.inference_metric_exporter=inference_metric_exporter
+        self.cap = cv2.VideoCapture(0)
 
     def send_async(self,url, json_data, headers, results):
         response = requests.post(url, data=json_data, headers=headers, timeout=10)
         results.append(response.text)
     
     def start(self):
-        img_file = "000000001675.jpg"
-        with open(img_file, "rb") as f:
-            img_data = f.read()
-        img_bytes = BytesIO(img_data)
-        img_base64 = base64.b64encode(img_data).decode('utf-8')
-        headers = {"Content-type": "application/json"}
-        data = {
-            "type_task": "IMAGE_CLASS",
-            "image": img_base64
-        }
-        json_data = json.dumps(data)
         def send_req_per_second():
+            ret, frame = self.cap.read()
+            retval, buffer = cv2.imencode('.jpg', frame)
+            # img_file = "000000001675.jpg"
+            # with open(img_file, "rb") as f:
+            #     img_data = f.read()
+            # img_bytes = BytesIO(frame)
+            img_base64 = base64.b64encode(buffer).decode('utf-8')
+            headers = {"Content-type": "application/json"}
+            data = {
+                "type_task": "IMAGE_CLASS",
+                "image": img_base64
+            }
+            json_data = json.dumps(data)
+
 
             start_time = time.time()
             threads = [None] * self.req_per_sec
