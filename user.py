@@ -6,26 +6,18 @@ import base64
 import threading
 
 class User():
-    def __init__(self,number_request,type_conenction, set_tasks, req_per_sec, ip, port, route, start_time,duration, logger = None) :
-        self.number_request=number_request
+    def __init__(self, type_conenction, set_tasks, req_per_sec, url, start_time,duration, inference_metric_exporter) :
         self.type_connection=type_conenction
         self.set_tasks=set_tasks
         self.req_per_sec=req_per_sec
-        self.ip = ip
-        self.port = port
-        self.route = route
+        self.url = url
         self.start_time=start_time
         self.duration=duration
-        self.latencies=[]
-        self.logger = logger
+        self.inference_metric_exporter=inference_metric_exporter
 
     def send_async(self,url, json_data, headers, results):
         response = requests.post(url, data=json_data, headers=headers, timeout=10)
         results.append(response.text)
-
-    def get_latencies(self):
-        print(self.latencies)
-        return self.latencies
     
     def start(self):
         img_file = "000000001675.jpg"
@@ -33,7 +25,6 @@ class User():
             img_data = f.read()
         img_bytes = BytesIO(img_data)
         img_base64 = base64.b64encode(img_data).decode('utf-8')
-        url = "http://{}:{}/{}".format(self.ip, self.port, self.route)
         headers = {"Content-type": "application/json"}
         data = {
             "type_task": "IMAGE_CLASS",
@@ -41,28 +32,25 @@ class User():
         }
         json_data = json.dumps(data)
         def send_req_per_second():
-            global latency
 
             start_time = time.time()
             threads = [None] * self.req_per_sec
             results = []
             for i in range(len(threads)):
-                threads[i] = threading.Thread(target=self.send_async, args=(url, json_data, headers, results,))
+                threads[i] = threading.Thread(target=self.send_async, args=(self.url, json_data, headers, results,))
                 threads[i].start()
             for i in range(len(threads)):
                 threads[i].join()
-            print(" ".join(results))
+            print("results", " ".join(results))
             end_time = time.time()
             time_in_ms = (end_time - start_time) * 1000
-            
-            latency = time_in_ms
 
-            self.latencies.append(time_in_ms)
+            self.inference_metric_exporter.set_latency(time_in_ms)
+
             print("Time interval in milliseconds:", time_in_ms)
             print(len(results))
             if (time.time() < self.start_time+self.duration):
                 time.sleep(1)
                 send_req_per_second()  
-            return self.latencies 
             
-        self.latencies=send_req_per_second()
+        send_req_per_second()

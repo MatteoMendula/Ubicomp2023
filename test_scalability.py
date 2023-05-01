@@ -12,28 +12,12 @@ from inference_metrics_exporter import InferenceMetricsExporter
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
-    "-p",
-    "--port",
+    "-u",
+    "--url",
     nargs="?",
-    default=8000,
-    type=int,
-    help="Port of the server",
-)
-parser.add_argument(
-    "-i",
-    "--ip",
-    nargs="?",
-    default="localhost",
+    default="http://localhost:8000/furcifer_efficientnet_b0",
     type=str,
-    help="IP of the server",
-)
-parser.add_argument(
-    "-r",
-    "--route",
-    nargs="?",
-    default="furcifer_efficientnet_b0",
-    type=str,
-    help="Route of the server",
+    help="URL of the server",
 )
 parser.add_argument(
     "-d",
@@ -52,7 +36,7 @@ parser.add_argument(
     help="Number of tests",
 )
 parser.add_argument(
-    "-u",
+    "-p",
     "--prometheus_server_url",
     nargs="?",
     default="http://localhost:9090/api/v1/query?query=",
@@ -67,27 +51,30 @@ metrics.append("energon_gpu_in_power_mW")
 metrics.append("energon_cpu_total_usage_percentage")
 metrics.append("energon_gpu_total_usage_percentage")
 metrics.append("energon_ram_used_percentage")
-metrics.append("furcifer_latency_avg_ms")
-metrics.append("furcifer_latency_var_ms")
+metrics.append("furcifer_latency_ms")
 
 if __name__ == "__main__":
 
+    print("------- RUNNING EXPERIMENT -------")
+
     start_time_user = time.time()
 
+    url = args.url
     duration_user = args.duration
     num_tests = args.n_tests
     prometheus_server_url = args.prometheus_server_url
-    ip = args.ip
-    port = args.port
-    route = args.route
+    print("running with service server on: ", url)
+    print("------- ------------------ -------")
+
+
 
     inference_metric_exporter = InferenceMetricsExporter()
-    inference_metric_exporter.setDaemon(True)
+    # inference_metric_exporter.setDaemon(True)
     inference_metric_exporter.start()
 
     duration_metrics = (duration_user * num_tests) + 3
     log_metrics = Logger(time.time(), duration_metrics, prometheus_server_url, metrics)
-    log_metrics.setDaemon(True)
+    # log_metrics.setDaemon(True)
     log_metrics.start()
 
     avg_var_metrics={}
@@ -95,24 +82,11 @@ if __name__ == "__main__":
     for j in range(num_tests):
         print("Testing "+ str(n_requests) + " requests per second")
         start_time_user=time.time()
-        user_1=User(10, 'BAD',set(), n_requests, ip, port, route, start_time_user, duration_user, log_metrics)
+        user_1=User(type_conenction='BAD', set_tasks=set(), req_per_sec=n_requests, url=url, start_time=start_time_user, duration=duration_user, inference_metric_exporter=inference_metric_exporter)
         user_1.start()
     
         print("Getting the metrics ")
         results_metrics=log_metrics.get_metrics(start_time_user,start_time_user+duration_user)
-
-        temp_dict_avg={}
-        temp_dict_var={}
-        for i in range(len(metrics)):
-            temp_dict_avg[metrics[i]]=sum(results_metrics[metrics[i]])/len(results_metrics[metrics[i]])
-            temp_dict_var[metrics[i]]=np.var(results_metrics[metrics[i]])
-        temp_dict_avg['latency']=sum(user_1.get_latencies())/len(user_1.get_latencies())
-        temp_dict_var['latency']=np.var(user_1.get_latencies())
-
-        avg_var_metrics[j]={'avg':temp_dict_avg, 'var':temp_dict_var}
-        print(avg_var_metrics)
-        
-        log_metrics = user_1.logger
         
         del user_1
         n_requests+=1
