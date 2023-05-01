@@ -33,21 +33,22 @@ class Logger(threading.Thread):
 
     def run(self):
         while(time.time() < self.start_time+self.duration):
-            self.stored_metrics['timestamp'].append(time.time())
             response = urlopen(self.query_url)
             data_json = json.loads(response.read())
-            saved_timestamp = False
+            is_timestamp_saved = False
             for metric in self.metrics:
                 try:
                     metric_query_result_firtered = self.find_metric(data_json, metric)
                     print("-----------", metric)
                     print("data_json", metric_query_result_firtered)
-                    val = metric_query_result_firtered["value"]
+                    value = metric_query_result_firtered["value"]
                     timestamp = metric_query_result_firtered["timestamp"]
-                    self.stored_metrics[metric].append(float(val))
-                    if not saved_timestamp:
+                    self.stored_metrics[metric].append(float(value))
+                    if is_timestamp_saved == False:
+                        print("pushing timestamp", len(self.stored_metrics['timestamp']))
+                        print("len metric", len(self.stored_metrics[metric]))
                         self.stored_metrics['timestamp'].append(timestamp)
-                        saved_timestamp = True
+                        is_timestamp_saved = True
                 except Exception as e:
                     print("Couldn't get the data, please check the server", e)
 

@@ -72,6 +72,12 @@ if __name__ == "__main__":
     # inference_metric_exporter.setDaemon(True)
     inference_metric_exporter.start()
 
+    # wait for the InferenceMetricsExporter server to start
+    print("Waiting for the InferenceMetricsExporter to start...")
+    for i in range(5):
+        print(5-i)
+        time.sleep(1)
+
     duration_metrics = (duration_user * num_tests) + 3
     log_metrics = Logger(time.time(), duration_metrics, prometheus_server_url, metrics)
     # log_metrics.setDaemon(True)
