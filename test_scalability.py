@@ -89,8 +89,16 @@ if __name__ == "__main__":
     tot_requests = 100
     n_requests=1
     cum_metrics=[]
+
+    #path
+    path='/home/sharon/Documents/Research/Ubicomp_Experiments/github_experiments/Ubicomp2023'
     while n_requests < tot_requests:
         for j in range(num_tests):
+            if j == 0 :
+                num_tests=20
+            else:
+                num_tests=10
+
             print("Testing "+ str(n_requests) + " requests per second")
             start_time_user=time.time()
             user_1=User(type_conenction='BAD', set_tasks=set(), req_per_sec=n_requests, url=url, start_time=start_time_user, duration=duration_user, inference_metric_exporter=inference_metric_exporter)
@@ -102,7 +110,7 @@ if __name__ == "__main__":
             print(results_metrics)
             del user_1
 
-        with open('metrics_num_test_'+str(num_tests)+'_n_requests_'+str(n_requests)+'.pk', 'wb') as f:
+        with open(path+'/results/2_containers/metrics_num_test_'+str(num_tests)+'_n_requests_'+str(n_requests)+'.pk', 'wb') as f:
                 pickle.dump(cum_metrics,f)
         cum_metrics=[]
         n_requests+=1
