@@ -10,4 +10,5 @@ dir_list = os.listdir(path)
 for file in dir_list:
     #print(file)
     unpickled_df = pd.read_pickle(path+file)
+    print(unpickled_df[0])
 
