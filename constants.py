@@ -30,6 +30,6 @@ SERVER_FULL_MODEL_ROUTE="furcifer_full_and_split_full"
 SERVER_HEAD_MODEL_ROUTE="furcifer_full_and_split_head"
 
 TIME_PER_SPOT_IN_SECONDS=60
-NUMBER_SPOTS=8
+NUMBER_SPOTS=9
 
 LOGS_PATH='/home/sladrond/Documents/Research/Ubicomp_Experiments/github_experiments/Ubicomp2023/logs/'
