@@ -18,16 +18,17 @@ if __name__ == "__main__":
 
     print("------- RUNNING EXPERIMENT WITH SPLIT MODEL -------")
     start_time_experiment = time.time()
-    filename="experiment_split_{}.csv".format(start_time_experiment)
+    filename="experiment_split_{}.pkl".format(start_time_experiment)
 
     print("------- ------------------ -------")
 
-    log_metrics = Logger(time.time(), "http://{}:{}".format(IP_PROMETHEUS_SERVER, PORT_PROMETHEUS_SERVER), metrics)
+    log_metrics = Logger(time.time(), "http://{}:{}/api/v1/query?query=".format(IP_PROMETHEUS_SERVER, PORT_PROMETHEUS_SERVER), metrics)
     log_metrics.start()
 
+    
     # SETTING SERVER INFERENCE ROUTE TO LOCAL
-    inference_server_url = "http://localhost:8001/{}".format(SERVER_HEAD_MODEL_ROUTE)
-    utils.set_inference_server_url(IP_NANO,SERVER_HEAD_MODEL_ROUTE)
+    inference_server_url = "http://localhost:8001/{}".format(SERVER_FULL_MODEL_ROUTE)
+    utils.set_inference_server_url(IP_NANO,inference_server_url)
 
     time.sleep(5)
     
@@ -40,13 +41,16 @@ if __name__ == "__main__":
         print("Starting sampling on the nano")
         utils.start_sampling(IP_NANO, 1)
 
-        while time.time() - start_time > TIME_PER_SPOT_IN_SECONDS:
+        while time.time() - start_time <= TIME_PER_SPOT_IN_SECONDS:
             
             # WRITE LOGS LOCALLY
-            file=open(os.path.join(LOGS_PATH,filename), "a").write(log_metrics.get_metrics() + "\n")
+            with open(os.path.join(LOGS_PATH,filename), 'wb') as f:
+                pickle.dump(log_metrics.get_metrics(),f)
+
+            time.sleep(1)
             
         utils.stop_sampling(IP_NANO,1)
-        file.close()
+        f.close()
 
         print("Stopped sampling")
         print("Please move to the next location")
