@@ -4,11 +4,11 @@ import json
 import threading
 
 class Logger(threading.Thread):
-    def __init__(self, start_time, duration, url, metrics) :
+    def __init__(self, start_time, url, metrics) :
         super(Logger, self).__init__()
         self.daemon = True 
         self.start_time=start_time
-        self.duration=duration
+        self.is_logging_active=True
         self.url=url
         self.metrics=metrics
         self.stored_metrics={}
@@ -19,6 +19,9 @@ class Logger(threading.Thread):
         for e in self.metrics:
             self.stored_metrics[e]=[]
         self.stored_metrics['timestamp']=[]
+
+    def set_is_logging_active(self, is_logging_active):
+        self.is_logging_active = is_logging_active
 
     def find_metric(self, obj, metric):
         result = {}
@@ -32,35 +35,28 @@ class Logger(threading.Thread):
         return result
 
     def run(self):
-        while(time.time() < self.start_time+self.duration):
-            response = urlopen(self.query_url)
-            data_json = json.loads(response.read())
-            is_timestamp_saved = False
-            for metric in self.metrics:
-                try:
-                    metric_query_result_firtered = self.find_metric(data_json, metric)
-                    print("-----------", metric)
-                    print("data_json", metric_query_result_firtered)
-                    value = metric_query_result_firtered["value"]
-                    timestamp = metric_query_result_firtered["timestamp"]
-                    self.stored_metrics[metric].append(float(value))
-                    if is_timestamp_saved == False:
-                        print("pushing timestamp", len(self.stored_metrics['timestamp']))
-                        print("len metric", len(self.stored_metrics[metric]))
-                        self.stored_metrics['timestamp'].append(timestamp)
-                        is_timestamp_saved = True
-                except Exception as e:
-                    print("Couldn't get the data, please check the server", e)
+        while(True):
+            if self.is_logging_active == True:
+                response = urlopen(self.query_url)
+                data_json = json.loads(response.read())
+                is_timestamp_saved = False
+                for metric in self.metrics:
+                    try:
+                        metric_query_result_firtered = self.find_metric(data_json, metric)
+                        print("-----------", metric)
+                        print("data_json", metric_query_result_firtered)
+                        value = metric_query_result_firtered["value"]
+                        timestamp = metric_query_result_firtered["timestamp"]
+                        self.stored_metrics[metric].append(float(value))
+                        if is_timestamp_saved == False:
+                            print("pushing timestamp", len(self.stored_metrics['timestamp']))
+                            print("len metric", len(self.stored_metrics[metric]))
+                            self.stored_metrics['timestamp'].append(timestamp)
+                            is_timestamp_saved = True
+                    except Exception as e:
+                        print("Couldn't get the data, please check the server", e)
 
-            time.sleep(1)
+                time.sleep(1)
 
-    def get_metrics(self,start_time,end_time):
-        print("len self.stored_metrics['timestamp']", len(self.stored_metrics['timestamp']))
-        for metric in self.metrics:
-            print("len self.stored_metrics[{}]".format(metric), len(self.stored_metrics[metric]))
-        
-        indexes = [idx for idx, element in enumerate(self.stored_metrics['timestamp']) if (element >= start_time and element<=end_time)]
-        for metric in self.metrics:
-            self.stored_metrics[metric]=[self.stored_metrics[metric][j] for j in indexes]
-        self.stored_metrics['timestamp'] = [self.stored_metrics['timestamp'][j] for j in indexes]
+    def get_metrics(self):
         return self.stored_metrics   
