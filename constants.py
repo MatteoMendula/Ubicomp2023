@@ -12,7 +12,7 @@ metrics.append("furcifer_latency_ms")
 metrics.append("furcifer_fps")
 
 IP_XAVIER = "10.42.0.84"
-IP_NANO = "10.42.0.120"
+IP_NANO = "10.42.0.42"
 IP_PROMETHEUS_SERVER = "localhost"
 
 PORT_FURCIFER_COMMAND_SERVER = "7999"
@@ -26,8 +26,8 @@ ROUTE_TO_STOP_SAMPLING = "stop_sampling"
 ROUTE_TO_SET_INFERENCE_SERVER_URL = "set_server_url"
 ROUTE_TO_EXCUTE_COMMAND = "execute_command"
 
-SERVER_FULL_MODEL_ROUTE="furcifer_efficientnet_b0"
-SERVER_HEAD_MODEL_ROUTE="furcifer_split_mobilenet_v3_split5_head"
+SERVER_FULL_MODEL_ROUTE="furcifer_full_and_split_full"
+SERVER_HEAD_MODEL_ROUTE="furcifer_full_and_split_head"
 
 TIME_PER_SPOT_IN_SECONDS=60
 NUMBER_SPOTS=8

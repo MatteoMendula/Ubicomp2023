@@ -26,7 +26,7 @@ if __name__ == "__main__":
     log_metrics.start()
 
     # SETTING SERVER INFERENCE ROUTE TO LOCAL
-    inference_server_url = "http://localhost:8001/furcifer_full_and_split_head"
+    inference_server_url = "http://localhost:8001/{}".format(SERVER_HEAD_MODEL_ROUTE)
     utils.set_inference_server_url(IP_NANO,SERVER_HEAD_MODEL_ROUTE)
 
     time.sleep(5)
