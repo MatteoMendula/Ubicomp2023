@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     
     # SETTING SERVER INFERENCE ROUTE TO LOCAL
-    inference_server_url = "http://localhost:{}/{}".format(PORT_FURCIFER_NGINX, SERVER_FULL_MODEL_ROUTE)
+    inference_server_url = "http://localhost:8001/furcifer_full_and_split_full"
     utils.set_inference_server_url(IP_NANO,SERVER_FULL_MODEL_ROUTE)
 
     time.sleep(5)
