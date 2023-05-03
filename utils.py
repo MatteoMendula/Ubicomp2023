@@ -1,4 +1,9 @@
 
+import requests
+import json
+
+from constants import *
+
 def set_inference_server_url(ip, server_url):
     url = "http://{}:{}/{}".format(ip, PORT_FURCIFER_COMMAND_SERVER, ROUTE_TO_SET_INFERENCE_SERVER_URL)
     data = {
