@@ -19,8 +19,17 @@ PORT_FURCIFER_COMMAND_SERVER = "7999"
 PORT_ENERGON_EXPORTER = "9877"
 PORT_FURCIFER_EXPORTER = "9878"
 PORT_PROMETHEUS_SERVER = "9090"
+PORT_FURCIFER_NGINX = "8000"
 
 ROUTE_TO_START_SAMPLING = "sample_camera_and_send_image_for_inference"
 ROUTE_TO_STOP_SAMPLING = "stop_sampling"
 ROUTE_TO_SET_INFERENCE_SERVER_URL = "set_server_url"
 ROUTE_TO_EXCUTE_COMMAND = "execute_command"
+
+SERVER_FULL_MODEL_ROUTE="furcifer_efficientnet_b0"
+SERVER_HEAD_MODEL_ROUTE="furcifer_split_mobilenet_v3_split5_head"
+
+TIME_PER_SPOT_IN_SECONDS=60
+NUMBER_SPOTS=8
+
+LOGS_PATH='/home/sladrond/Documents/Research/Ubicomp_Experiments/github_experiments/Ubicomp2023/logs/'
